@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Boulder Wildfire Map</title>
+    <script type="module" src="https://js.arcgis.com/5.1/"></script>
+    <style>
+      html, body, arcgis-map { height: 100%; width: 100%; margin: 0; }
+      #status { position: absolute; bottom: 8px; left: 100px; background: white; padding: 6px; font: 13px Arial; }
+    </style>
+  </head>
+  <body>
+    <arcgis-map basemap="gray-vector" center="-105.30,40.048" zoom="12">
+      <arcgis-popup slot="popup"></arcgis-popup>
+      <arcgis-zoom slot="top-left"></arcgis-zoom>
+      <arcgis-scale-bar slot="bottom-left"></arcgis-scale-bar>
+    </arcgis-map>
+    <div id="status" role="status">Loading wildfire locations…</div>
+    <script type="module">
+      const GeoJSONLayer = await $arcgis.import("@arcgis/core/layers/GeoJSONLayer.js");
+      const PictureMarkerSymbol = await $arcgis.import("@arcgis/core/symbols/PictureMarkerSymbol.js");
+      const SimpleRenderer = await $arcgis.import("@arcgis/core/renderers/SimpleRenderer.js");
+      const template = {
+        title: "Wildfire Info",
+        content: 'Name: {name}<p>Link: <a href="{link}" target="_blank" rel="noopener noreferrer">{link}</a></p>'
+      };
+      const myIcon = { url: "images/fire.png", width: "32px", height: "32px" };
+      const myRenderer = new SimpleRenderer({ symbol: new PictureMarkerSymbol(myIcon) });
+      const layer = new GeoJSONLayer({
+        url: "data/wildfire.json",
+        title: "Wildfire locations",
+        copyright: "Denver Post and Daily Camera",
+        popupTemplate: template,
+        renderer: myRenderer,
+        labelingInfo: [{
+          labelExpressionInfo: { expression: "$feature.name" },
+          labelPlacement: "above-center",
+          symbol: { type: "text", color: "#202020", haloColor: "white", haloSize: 2, font: { size: 12, family: "Arial", weight: "bold" } }
+        }],
+        labelsVisible: true
+      });
+      const viewElement = document.querySelector("arcgis-map");
+      await viewElement.viewOnReady();
+      viewElement.map.add(layer);
+      try {
+        await layer.load();
+        const results = await layer.queryFeatures();
+        document.querySelector("#status").textContent = `${results.features.length} wildfire locations | Click a fire for details`;
+      } catch (error) {
+        document.querySelector("#status").textContent = "Unable to load wildfire data. Serve this folder over HTTP and check data/wildfire.json.";
+        console.error(error);
+      }
+    </script>
+  </body>
+</html>
