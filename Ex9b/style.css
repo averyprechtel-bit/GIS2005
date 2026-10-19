@@ -1,0 +1,40 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Three rows fill the viewport; the middle row uses remaining space. */
+.container {
+  display: grid;
+  grid-template-rows: 60px minmax(0, 1fr) 60px;
+  height: 100%;
+  width: 100%;
+}
+
+.header,
+.footer {
+  background: steelblue;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  overflow: auto;
+}
+
+.header {
+  text-align: center;
+}
+
+.footer {
+  text-align: left;
+}
+
+.content-body {
+  background-color: forestgreen;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+}
