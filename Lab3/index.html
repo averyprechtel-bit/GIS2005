@@ -3,16 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Denver Web GIS</title>
+  <title>Denver Food Analysis</title>
   <link rel="stylesheet" href="style.css">
   <script type="module" src="https://js.arcgis.com/5.1/"></script>
 </head>
 <body>
   <div class="container">
-    <header><h1>Denver Web GIS</h1></header>
-    <aside class="sidebar-l"><h2>Layers &amp; Legend</h2></aside>
-    <main aria-label="Main map area"><span>Main Content Area</span></main>
-    <footer>Avery Prechtel | GIS 2005 | Lab 3, Part 1</footer>
+    <header><img src="denver-skyline.svg" width="700" height="125" alt="Denver skyline"><h1>Denver Food Analysis</h1></header>
+    <aside class="sidebar-l"><p>To find food stores, click the map to see their names</p><h2>Layer Visibility</h2><arcgis-layer-list reference-element="myMap"></arcgis-layer-list><h2>Legend</h2><arcgis-legend reference-element="myMap"></arcgis-legend><p id="status" role="status">Loading map…</p></aside>
+    <main aria-label="Main map area"><arcgis-map id="myMap" item-id="a5c6499aab944b37bfedc749d92e5afe" center="-104.95,39.75" zoom="14" popup-disabled><arcgis-zoom slot="top-left"></arcgis-zoom><arcgis-popup slot="popup"></arcgis-popup></arcgis-map></main>
+    <footer>Avery Prechtel | GIS 2005 | Lab 3<br>Grocery icon from <a href="https://www.flaticon.com/">www.flaticon.com</a> licensed by CC 3.0 | Data: City and County of Denver | Basemap: USGS</footer>
   </div>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
