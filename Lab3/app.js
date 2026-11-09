@@ -1,4 +1,4 @@
-const [GraphicsLayer, Graphic, webMercatorUtils] = await $arcgis.import(['@arcgis/core/layers/GraphicsLayer.js','@arcgis/core/Graphic.js','@arcgis/core/geometry/support/webMercatorUtils.js']);
+const [GraphicsLayer, Graphic, webMercatorUtils, Basemap, OpenStreetMapLayer, reactiveUtils] = await $arcgis.import(['@arcgis/core/layers/GraphicsLayer.js','@arcgis/core/Graphic.js','@arcgis/core/geometry/support/webMercatorUtils.js','@arcgis/core/Basemap.js','@arcgis/core/layers/OpenStreetMapLayer.js','@arcgis/core/core/reactiveUtils.js']);
 const mapElement=document.querySelector('#myMap'), popup=document.querySelector('arcgis-popup'), status=document.querySelector('#status');
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function distanceKm(a,b){
@@ -12,8 +12,18 @@ try{
   const stores=map.layers.find(l=>/Food_Stores/i.test(l.title));
   stores.title='Food stores';
   stores.renderer={type:'simple',symbol:{type:'picture-marker',url:new URL('groceries.svg',import.meta.url).href,width:24,height:24}};
-  const buildings=map.layers.find(l=>/Bldgs/i.test(l.title)); if(buildings){buildings.title='Buildings by type';buildings.minScale=150000;buildings.maxScale=1128;}
+  const buildings=map.layers.find(l=>/Bldgs/i.test(l.title)); if(buildings){buildings.title='Buildings by type';buildings.minScale=150000;buildings.maxScale=1128;buildings.opacity=0.9;}
+  const usgs=map.basemap;
+  const osm=new Basemap({title:'OpenStreetMap',baseLayers:[new OpenStreetMapLayer()]});
+  map.basemap=osm;
+  document.querySelector('#basemap').addEventListener('change',e=>{map.basemap=e.target.value==='osm'?osm:usgs;});
+  document.querySelector('#opacity').addEventListener('change',e=>{buildings.opacity=Number(e.target.value);});
   const highlights=new GraphicsLayer({title:'Highlighted stores',listMode:'hide'});map.add(highlights);
+  const toggleStores=document.querySelector('#stores-visible'),toggleBuildings=document.querySelector('#buildings-visible');
+  toggleStores.addEventListener('change',()=>{stores.visible=toggleStores.checked;highlights.visible=toggleStores.checked;});
+  toggleBuildings.addEventListener('change',()=>{buildings.visible=toggleBuildings.checked;});
+  reactiveUtils.watch(()=>stores.visible,visible=>{toggleStores.checked=visible;highlights.visible=visible;});
+  reactiveUtils.watch(()=>buildings.visible,visible=>{toggleBuildings.checked=visible;});
   await mapElement.view.goTo({center:[-104.95,39.75],zoom:14},{animate:false});status.textContent='Ready';
   let request=0;
   mapElement.addEventListener('arcgisViewClick',async event=>{
